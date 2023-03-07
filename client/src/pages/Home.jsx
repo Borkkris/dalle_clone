@@ -16,7 +16,9 @@ const RenderCards = ({data, title}) => {
 const Home = () => {
   const [loading, setLoading] = useState(false);
   const [allPosts, setAllPosts] = useState(null);
-  const [searchText, setSearchText] = useState('')
+  const [searchText, setSearchText] = useState('');
+  const [searchedResults, setSearchedResults] = useState(null);
+  const [searchTimeout, setSearchTimeout] = useState(null);
 
   // is called at the start once the component loads
   useEffect(() => {
@@ -44,6 +46,21 @@ const Home = () => {
     fetchPosts();
   }, []);
   
+  const handleSearchChange = (e) => {
+    clearTimeout(searchTimeout);
+
+    setSearchText(e.target.value);
+
+    setSearchTimeout(
+      setTimeout(() => {
+      const searchResults = allPosts.filter((item) => item.name.toLowerCase().includes(searchText.toLowerCase()) 
+      || item.prompt.toLowerCase().includes(searchText.toLowerCase()))
+
+      setSearchedResults(searchResults);
+    }, 500)
+    );
+  }
+
   return (
     <section className="max-w-7xl mx-auto">
       <div>
@@ -52,7 +69,13 @@ const Home = () => {
       </div>
 
       <div className="mt-16">
-        <FormField />
+        <FormField
+          LabelName="Search posts"
+          type="text"
+          name="text"
+          placeholder="Search posts"
+          value={searchText}
+          handleChange={handleSearchChange} />
       </div>
 
       <div className="mt-10">
@@ -72,7 +95,7 @@ const Home = () => {
             {searchText ? (
               // will show the searchterm results
               <RenderCards
-                data={[]}
+                data={searchedResults}
                 title="No search results found"
               />
             ):(
